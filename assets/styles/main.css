@@ -1,0 +1,43 @@
+@font-face {
+  font-family: "Trajan-Bold";
+  src: url("@/assets/fonts/Trajan-Bold.woff") format("woff"),
+    url("@/assets/fonts/Trajan-Bold.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Trajan-Bold", sans-serif;
+}
+
+.img-full {
+  object-fit: cover;
+}
+
+video {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100%;
+  min-width: 100%;
+  object-fit: cover;
+}
+
+.fullscreen {
+  width: 100vw;
+  height: 100vh;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
