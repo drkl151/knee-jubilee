@@ -1,34 +1,60 @@
 <template>
-    <div class="riddle-container">
-        <video v-if="!videoStarted" id="posterVideo" poster="/games/riddle/wk_start.png" @click="startVideo" muted
-            playsinline></video>
+  <div class="riddle-container">
+    <Alert v-if="showAlert" :message="alertMessage" />
 
-        <CustomButton v-if="showSkip" buttonText="Skip" size="small" class="skipButton" @clicked="nextVideo" />
+    <video
+      v-if="!videoStarted"
+      id="posterVideo"
+      poster="/games/riddle/wk_start.png"
+      @click="startVideo"
+      muted
+      playsinline
+    ></video>
 
-        <video v-if="videoStarted" id="videoPlayer" ref="videoPlayer" loop playsinline></video>
+    <MainButton
+      v-if="showSkip"
+      buttonText="Skip"
+      size="small"
+      class="skipButton"
+      @clicked="nextVideo"
+    />
 
-        <div v-if="showInput" id="inputContainer">
-            <p>Enter the correct answer:</p>
-            <input type="text" v-model="userAnswer" @keyup.enter="checkAnswer" autocomplete="off" />
-            <Button buttonText="Answer" size="large" @clicked="checkAnswer" />
-        </div>
+    <video
+      v-if="videoStarted"
+      id="videoPlayer"
+      ref="videoPlayer"
+      loop
+      playsinline
+    ></video>
+
+    <div v-if="showInput" class="inputContainer style-bordeaux c-white">
+      <Input
+        v-model="userAnswer"
+        label="Enter the correct answer:"
+        @enter="checkAnswer"
+      />
+      <Button buttonText="Answer" size="large" @clicked="checkAnswer" />
     </div>
+  </div>
 </template>
-
 
 <script setup>
 import { ref, onMounted, nextTick } from "vue";
-import { useRouter } from "#app";
-import CustomButton from '@/components/ui/MainButton.vue';
-import Button from '@/components/ui/Button.vue';
+import { useAlert } from '@/composables/useAlert';
 
-const router = useRouter();
+import MainButton from '@/components/ui/MainButton.vue';
+import Button from '@/components/ui/Button.vue';
+import Input from '@/components/ui/Input.vue';
+import Alert from '@/components/ui/Alert.vue';
+
+
 const videoPlayer = ref(null);
 const videoStarted = ref(false);
 const showSkip = ref(false);
 const showInput = ref(false);
 const userAnswer = ref("");
 const currentStep = ref(0);
+const { showAlert, alertMessage, triggerAlert, hideAlert } = useAlert();
 
 const videos = {
     start: "/games/riddle/video/wk_start.mp4",
@@ -41,9 +67,12 @@ onMounted(() => {
     if (localStorage.getItem("wk_riddle_completed") === "true") {
         router.push("/");
     }
+
+    triggerAlert('Press anywhere to continue');
 });
 
 function startVideo() {
+    hideAlert();
     videoStarted.value = true;
     showSkip.value = true;
 
@@ -118,26 +147,14 @@ h1 {
     z-index: 10;
 }
 
-#inputContainer {
+.inputContainer {
     position: absolute;
+    right: 15%;
+    top: 15%;
     z-index: 10;
-    background: rgba(0, 0, 0, 0.7);
     padding: 20px;
     border-radius: 10px;
-    color: white;
     text-align: center;
-}
-
-input {
-    padding: 10px;
-    font-size: 18px;
-    margin-top: 10px;
-}
-
-button {
-    padding: 10px;
-    font-size: 18px;
-    margin-left: 10px;
-    cursor: pointer;
+    width: 35%;
 }
 </style>

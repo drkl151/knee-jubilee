@@ -1,9 +1,13 @@
 @font-face {
-  font-family: "Trajan-Bold";
-  src: url("@/assets/fonts/Trajan-Bold.woff") format("woff"),
-    url("@/assets/fonts/Trajan-Bold.woff2") format("woff2");
+  font-family: 'Trajan-Bold';
+  src: url('@/assets/fonts/Trajan-Bold.woff') format('woff'),
+    url('@/assets/fonts/Trajan-Bold.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
+}
+
+* {
+  user-select: none;
 }
 
 body {
@@ -11,7 +15,7 @@ body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Trajan-Bold", sans-serif;
+  font-family: 'Trajan-Bold', sans-serif;
 }
 
 .img-full {
@@ -40,4 +44,26 @@ video {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+/* variables */
+
+:root {
+  --main-accent-color: #d68c38;
+  --main-accent-light: #ffb347;
+  --main-white: #f0e4e4;
+  --cherry: #a02c2c;
+  --cherry-dark: #a02c2c;
+}
+
+/* topic style */
+
+.c-white {
+  color: var(--main-white);
+}
+
+.style-bordeaux {
+  background: linear-gradient(180deg, #252525, #111);
+  border: 3px solid var(--cherry);
+  box-shadow: 0 4px 0 var(--cherry-dark), 0 4px 10px rgba(0, 0, 0, 0.6);
 }
