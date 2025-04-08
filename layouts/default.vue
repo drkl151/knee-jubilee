@@ -1,13 +1,11 @@
 <template>
-    <div>
-        <header>
-        </header>
+  <div>
+    <header></header>
 
-        <main>
-            <NuxtPage />
-        </main>
+    <main>
+      <NuxtPage />
+    </main>
 
-        <footer>
-        </footer>
-    </div>
+    <footer></footer>
+  </div>
 </template>

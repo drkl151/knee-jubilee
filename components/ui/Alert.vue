@@ -1,10 +1,10 @@
 <template>
-  <p class="msg c-white" v-if="message">{{ message }}</p>
+  <p v-if="message" class="msg c-white">{{ message }}</p>
 </template>
 
 <script setup>
-const props = defineProps({
-    message: {
+defineProps({
+  message: {
     type: String,
     default: '',
   },
@@ -13,11 +13,11 @@ const props = defineProps({
 
 <style scoped>
 .msg {
-    position: absolute;
-    z-index: 8888;
-    top: 2%;
-    left: 50%;
-    transform: translate(-50%, 0%);
-    text-shadow: 0 2px 1px rgba(0, 0, 0);
+  position: absolute;
+  z-index: 8888;
+  top: 2%;
+  left: 50%;
+  transform: translate(-50%, 0%);
+  text-shadow: 0 2px 1px rgba(0, 0, 0);
 }
 </style>

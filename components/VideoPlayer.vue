@@ -13,62 +13,71 @@
       v-if="showSkip"
       class="skipButton"
       size="small"
-      buttonText="Skip"
+      button-text="Skip"
       @clicked="$emit('skip')"
     />
   </div>
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
-import MainButton from '@/components/ui/MainButton.vue'
+import { ref, watch, onMounted } from 'vue';
+import MainButton from '@/components/ui/MainButton.vue';
 
 const props = defineProps({
-  videoSrc: String,
-  poster: String,
+  videoSrc: {
+    type: String,
+    default: '',
+  },
+  poster: {
+    type: String,
+    default: '',
+  },
   loop: Boolean,
   showSkip: Boolean,
   muted: {
     type: Boolean,
     default: false,
   },
-})
+});
 
-const emit = defineEmits(['started', 'ended', 'skip'])
+const emit = defineEmits(['started', 'ended', 'skip']);
 
-const videoEl = ref(null)
-const hasInteracted = ref(false)
-
-function handleClick() {
-  if (!hasInteracted.value) {
-    hasInteracted.value = true
-    playVideo()
-    emit('started')
-  }
-}
+const videoEl = ref(null);
+const hasInteracted = ref(false);
 
 function playVideo() {
   if (videoEl.value && props.videoSrc) {
-    videoEl.value.src = props.videoSrc
-    videoEl.value.play().catch(err => {
-      console.warn('Autoplay blocked or error:', err)
-    })
+    videoEl.value.src = props.videoSrc;
+    videoEl.value.play().catch((err) => {
+      console.warn('Autoplay blocked or error:', err);
+    });
 
     videoEl.value.onended = () => {
-      emit('ended')
-    }
+      emit('ended');
+    };
   }
 }
 
-watch(() => props.videoSrc, (newVal) => {
-  if (hasInteracted.value && newVal && videoEl.value) {
-    playVideo()
+function handleClick() {
+  if (!hasInteracted.value) {
+    hasInteracted.value = true;
+    playVideo();
+    emit('started');
   }
-})
+}
+
+watch(
+  () => props.videoSrc,
+  (newVal) => {
+    if (hasInteracted.value && newVal && videoEl.value) {
+      playVideo();
+    }
+  }
+);
 
 onMounted(() => {
-  videoEl.value.muted = props.muted
-})
+  videoEl.value.muted = props.muted;
+});
 </script>
 
 <style scoped>

@@ -4,9 +4,9 @@
 
     <VideoPlayer
       :poster="posterSrc"
-      :videoSrc="videoSrc"
+      :video-src="videoSrc"
       :loop="isIdle"
-      :showSkip="showSkip"
+      :show-skip="showSkip"
       :muted="!videoStarted"
       @started="onVideoStarted"
       @ended="onVideoEnded"
@@ -15,14 +15,10 @@
 
     <transition name="fade-input">
       <div v-if="showInput" class="inputContainer style-bordeaux c-white">
-        <Input
-          v-model="userAnswer"
-          label="Enter the correct answer:"
-          @enter="checkAnswer"
-        />
+        <Input v-model="userAnswer" label="Enter the correct answer:" @enter="checkAnswer" />
         <Button
           :disabled="isAnswerDisabled"
-          buttonText="Answer"
+          button-text="Answer"
           size="large"
           @clicked="checkAnswer"
         />
@@ -33,18 +29,18 @@
 
 <script setup>
 // -------- Imports --------
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAlert } from '@/composables/useAlert'
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAlert } from '@/composables/useAlert';
 
-import VideoPlayer from '@/components/VideoPlayer.vue'
-import Input from '@/components/ui/Input.vue'
-import Button from '@/components/ui/Button.vue'
-import Alert from '@/components/ui/Alert.vue'
+import VideoPlayer from '@/components/VideoPlayer.vue';
+import Input from '@/components/ui/Input.vue';
+import Button from '@/components/ui/Button.vue';
+import Alert from '@/components/ui/Alert.vue';
 
 // -------- Router & alert composable --------
-const router = useRouter()
-const { showAlert, alertMessage, triggerAlert, hideAlert } = useAlert()
+const router = useRouter();
+const { showAlert, alertMessage, triggerAlert, hideAlert } = useAlert();
 
 // -------- Video sources --------
 const videos = {
@@ -52,66 +48,66 @@ const videos = {
   idle: '/games/riddle/video/wk_idle.mp4',
   correct: '/games/riddle/video/wk_right.mp4',
   wrong: '/games/riddle/video/wk_wrong.mp4',
-}
-const posterSrc = '/games/riddle/wk_start.png'
+};
+const posterSrc = '/games/riddle/wk_start.png';
 
 // -------- Reactive state --------
-const videoSrc = ref(videos.start)
-const videoStarted = ref(false)
-const showSkip = ref(false)
-const showInput = ref(false)
-const userAnswer = ref('')
-const isCorrect = ref(false)
+const videoSrc = ref(videos.start);
+const videoStarted = ref(false);
+const showSkip = ref(false);
+const showInput = ref(false);
+const userAnswer = ref('');
+const isCorrect = ref(false);
 
 // -------- Computed --------
-const isIdle = computed(() => videoSrc.value === videos.idle)
-const isAnswerDisabled = computed(() => videoSrc.value === videos.wrong)
+const isIdle = computed(() => videoSrc.value === videos.idle);
+const isAnswerDisabled = computed(() => videoSrc.value === videos.wrong);
 
 onMounted(() => {
   if (localStorage.getItem('wk_riddle_completed') === 'true') {
-    router.push('/')
+    router.push('/');
   }
-  triggerAlert('Press anywhere to continue')
-})
+  triggerAlert('Press anywhere to continue');
+});
 
 // -------- Video event handlers --------
 function onVideoStarted() {
-  hideAlert()
-  videoStarted.value = true
-  showSkip.value = true
+  hideAlert();
+  videoStarted.value = true;
+  showSkip.value = true;
+}
+
+function nextVideo() {
+  videoSrc.value = videos.idle;
+  showSkip.value = false;
+  showInput.value = true;
 }
 
 function onVideoEnded() {
   if (videoSrc.value === videos.start) {
-    nextVideo()
+    nextVideo();
   } else if (videoSrc.value === videos.idle) {
-    showInput.value = true
+    showInput.value = true;
   } else if (videoSrc.value === videos.wrong) {
-    videoSrc.value = videos.idle
+    videoSrc.value = videos.idle;
   }
-}
-
-function nextVideo() {
-  videoSrc.value = videos.idle
-  showSkip.value = false
-  showInput.value = true
 }
 
 // -------- Answer checker --------
 function checkAnswer() {
-  const correctAnswers = ['трусіки', 'трусики', 'труси', 'трусы', 'underpants']
-  isCorrect.value = correctAnswers.includes(userAnswer.value.trim().toLowerCase())
+  const correctAnswers = ['трусіки', 'трусики', 'труси', 'трусы', 'underpants'];
+  isCorrect.value = correctAnswers.includes(userAnswer.value.trim().toLowerCase());
 
-  videoSrc.value = isCorrect.value ? videos.correct : videos.wrong
-  showSkip.value = false
+  videoSrc.value = isCorrect.value ? videos.correct : videos.wrong;
+  showSkip.value = false;
 
   if (isCorrect.value) {
-    localStorage.setItem('wk_riddle_completed', 'true')
+    localStorage.setItem('wk_riddle_completed', 'true');
 
-    let coins = parseInt(localStorage.getItem('player_coins')) || 0
-    localStorage.setItem('player_coins', coins + 10)
+    const coins = parseInt(localStorage.getItem('player_coins'), 10) || 0;
+    localStorage.setItem('player_coins', coins + 10);
 
-    showInput.value = false
+    showInput.value = false;
   }
 }
 </script>
@@ -146,11 +142,13 @@ function checkAnswer() {
 .fade-input-leave-active {
   transition: all 0.5s ease;
 }
+
 .fade-input-enter-from,
 .fade-input-leave-to {
   opacity: 0;
   transform: translateY(-20px);
 }
+
 .fade-input-enter-to,
 .fade-input-leave-from {
   opacity: 1;

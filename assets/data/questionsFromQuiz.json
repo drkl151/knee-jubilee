@@ -1,67 +1,53 @@
 [
-    {
-        "question": "Назва нашої гільдії в Dota2?",
-        "answers": [
-            "Коленочка",
-            "Коленочко",
-            "Коленачка"
-        ],
-        "correct": 1
-    },
-    {
-        "question": "Девіз нашої гільдії у Dota2?",
-        "answers": [
-            "Не своруешь - Не проживешь",
-            "Не своруешь - Не выживешь",
-            "Не своруешь - Не убьешь",
-            "Не повоюешь - Помрешь"
-        ],
-        "correct": 0
-    },
-    {
-        "question": "Який візерунок на прапорі нашої гільдії у Dota2?",
-        "answers": [
-            {
-                "text": "1",
-                "image": "/games/quiz/tracery/1.png"
-            },
-            {
-                "text": "2",
-                "image": "/games/quiz/tracery/2.png"
-            },
-            {
-                "text": "3",
-                "image": "/games/quiz/tracery/3.png"
-            },
-            {
-                "text": "4",
-                "image": "/games/quiz/tracery/4.png"
-            },
-            {
-                "text": "5",
-                "image": "/games/quiz/tracery/5.png"
-            }
-        ],
-        "correct": 2
-    },
-    {
-        "question": "Мій улюблений герой у Dota2?",
-        "answers": [
-            "Skywrath Mage",
-            "Witch doctor",
-            "Dazzle",
-            "Undying"
-        ],
-        "correct": 2
-    },
-    {
-        "question": "Мій улюблений герой у Dota2?",
-        "answers": [
-            "11 серпня",
-            "11 лютого",
-            "25 березня",
-            "15 квітня"
-        ],
-        "correct": 1
-    }
+  {
+    "question": "Назва нашої гільдії в Dota2?",
+    "answers": ["Коленочка", "Коленочко", "Коленачка"],
+    "correct": 1
+  },
+  {
+    "question": "Девіз нашої гільдії у Dota2?",
+    "answers": [
+      "Не своруешь - Не проживешь",
+      "Не своруешь - Не выживешь",
+      "Не своруешь - Не убьешь",
+      "Не повоюешь - Помрешь"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Який візерунок на прапорі нашої гільдії у Dota2?",
+    "answers": [
+      {
+        "text": "1",
+        "image": "/games/quiz/tracery/1.png"
+      },
+      {
+        "text": "2",
+        "image": "/games/quiz/tracery/2.png"
+      },
+      {
+        "text": "3",
+        "image": "/games/quiz/tracery/3.png"
+      },
+      {
+        "text": "4",
+        "image": "/games/quiz/tracery/4.png"
+      },
+      {
+        "text": "5",
+        "image": "/games/quiz/tracery/5.png"
+      }
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Мій улюблений герой у Dota2?",
+    "answers": ["Skywrath Mage", "Witch doctor", "Dazzle", "Undying"],
+    "correct": 2
+  },
+  {
+    "question": "Мій улюблений герой у Dota2?",
+    "answers": ["11 серпня", "11 лютого", "25 березня", "15 квітня"],
+    "correct": 1
+  }
 ]

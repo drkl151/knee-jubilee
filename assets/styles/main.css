@@ -1,6 +1,7 @@
 @font-face {
   font-family: 'Trajan-Bold';
-  src: url('@/assets/fonts/Trajan-Bold.woff') format('woff'),
+  src:
+    url('@/assets/fonts/Trajan-Bold.woff') format('woff'),
     url('@/assets/fonts/Trajan-Bold.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
@@ -65,5 +66,7 @@ video {
 .style-bordeaux {
   background: linear-gradient(180deg, #252525, #111);
   border: 3px solid var(--cherry);
-  box-shadow: 0 4px 0 var(--cherry-dark), 0 4px 10px rgba(0, 0, 0, 0.6);
+  box-shadow:
+    0 4px 0 var(--cherry-dark),
+    0 4px 10px rgba(0, 0, 0, 0.6);
 }
