@@ -2,21 +2,15 @@
   <div class="fullscreen flex">
     <Alert v-if="showAlert" :message="alertMessage" />
 
-    <video
-      ref="videoPlayer"
-      :src="videoSrc"
+    <VideoPlayer
       :poster="posterSrc"
+      :videoSrc="videoSrc"
+      :loop="isIdle"
+      :showSkip="showSkip"
+      :muted="!videoStarted"
+      @started="onVideoStarted"
       @ended="onVideoEnd"
-      @click="startVideo"
-      playsinline
-    ></video>
-
-    <MainButton
-      v-if="showSkip"
-      buttonText="Skip"
-      size="small"
-      class="skipButton"
-      @clicked="nextVideo"
+      @skip="nextVideo"
     />
 
     <div class="quiz-container" v-if="showQuiz">
@@ -54,36 +48,22 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick, watch } from 'vue';
-import { useAlert } from '@/composables/useAlert';
-import questionsFromQuiz from '~/assets/data/questionsFromQuiz.json';
-import Alert from '@/components/ui/Alert.vue';
+// -------- Imports --------
+import { ref, computed, onMounted } from 'vue'
+import { useAlert } from '@/composables/useAlert'
+import questionsFromQuiz from '~/assets/data/questionsFromQuiz.json'
+import VideoPlayer from '@/components/VideoPlayer.vue'
+import Alert from '@/components/ui/Alert.vue'
 
-const videoPlayer = ref(null);
-const videoSrc = ref("/games/quiz/video/ww_start.mp4");
-const posterSrc = "/games/quiz/ww_start.png";
+// -------- Alert system --------
+const { showAlert, alertMessage, triggerAlert, hideAlert } = useAlert()
 
-const showQuiz = ref(false);
-const videoStarted = ref(false);
-const showSkip = ref(false);
-
-const currentIndex = ref(0);
-const selectedAnswer = ref(null);
-const buttonsDisabled = ref(false);
-const feedbackMessage = ref('');
-const feedbackVisible = ref(false);
-const score = ref(0);
-
-const { showAlert, alertMessage, triggerAlert, hideAlert } = useAlert();
-
-const soundCorrect = ref(null);
-const soundWrong = ref(null);
-
-onMounted(() => {
-    triggerAlert('Press anywhere to continue');
-    soundCorrect.value = new Audio("/audio/clarity_right.mp3");
-    soundWrong.value = new Audio("/audio/wrong.mp3");
-});
+// -------- Video setup --------
+const videoSrc = ref("/games/quiz/video/ww_start.mp4")
+const posterSrc = "/games/quiz/ww_start.png"
+const showQuiz = ref(false)
+const videoStarted = ref(false)
+const showSkip = ref(false)
 
 const videos = {
   start: "/games/quiz/video/ww_start.mp4",
@@ -91,94 +71,94 @@ const videos = {
   good: "/games/quiz/video/ww_good.mp4",
   normal: "/games/quiz/video/ww_normal.mp4",
   bad: "/games/quiz/video/ww_bad.mp4",
-};
+}
 
-const currentQuestion = computed(() => questionsFromQuiz[currentIndex.value]);
-const correctIndex = computed(() => currentQuestion.value.correct);
-const isLastQuestion = computed(() => currentIndex.value === questionsFromQuiz.length - 1);
+// -------- Quiz state --------
+const currentIndex = ref(0)
+const selectedAnswer = ref(null)
+const buttonsDisabled = ref(false)
+const feedbackMessage = ref('')
+const feedbackVisible = ref(false)
+const score = ref(0)
 
-const startVideo = () => {
-  if (!videoStarted.value) {
-    hideAlert();
-    showSkip.value = true;
-    videoStarted.value = true;
-    videoPlayer.value.play().catch(() => {});
-  }
-};
+// -------- Computed --------
+const isIdle = computed(() => videoSrc.value === videos.idle)
+const currentQuestion = computed(() => questionsFromQuiz[currentIndex.value])
+const correctIndex = computed(() => currentQuestion.value.correct)
+const isLastQuestion = computed(() => currentIndex.value === questionsFromQuiz.length - 1)
+
+// -------- Lifecycle --------
+onMounted(() => {
+  triggerAlert('Press anywhere to continue')
+})
+
+// -------- Video control --------
+const onVideoStarted = () => {
+  hideAlert()
+  showSkip.value = true
+  videoStarted.value = true
+}
 
 const onVideoEnd = () => {
+  nextVideo()
+}
+
+const nextVideo = () => {
   if (videoSrc.value === videos.start) {
-    videoSrc.value = videos.idle;
-    showQuiz.value = true;
-  } else if (videoSrc.value === videos.idle) {
-    videoPlayer.value.currentTime = 0;
-    videoPlayer.value.play();
+    videoSrc.value = videos.idle
+    showSkip.value = false
+    showQuiz.value = true
   }
-};
-
-const handleAnswer = (index) => {
-  if (buttonsDisabled.value) return;
-
-  selectedAnswer.value = index;
-  buttonsDisabled.value = true;
-
-  const isCorrect = index === correctIndex.value;
-  if (isCorrect) {
-    score.value++;
-    playSound(soundCorrect);
-    feedbackMessage.value = "✅ Правильно!";
-  } else {
-    playSound(soundWrong);
-    feedbackMessage.value = "❌ Неправильно!";
-  }
-
-  feedbackVisible.value = true;
-};
-
-const nextQuestion = () => {
-  currentIndex.value++;
-  selectedAnswer.value = null;
-  buttonsDisabled.value = false;
-  feedbackVisible.value = false;
-};
-
-const finishQuiz = () => {
-  showQuiz.value = false;
-  showFinalVideo();
-};
-
-const getAnswerClass = (index) => {
-  if (selectedAnswer.value === null) return '';
-  if (index === correctIndex.value) return 'correct';
-  if (index === selectedAnswer.value) return 'wrong';
-  return '';
-};
+}
 
 const showFinalVideo = () => {
-  const percent = (score.value / questionsFromQuiz.length) * 100;
+  const percent = (score.value / questionsFromQuiz.length) * 100
   if (percent <= 33) {
-    videoSrc.value = videos.bad;
+    videoSrc.value = videos.bad
   } else if (percent <= 66) {
-    videoSrc.value = videos.normal;
+    videoSrc.value = videos.normal
   } else {
-    videoSrc.value = videos.good;
+    videoSrc.value = videos.good
   }
-};
+}
 
-const playSound = (sound) => {
-  if (sound) {
-    sound.currentTime = 0;
-    sound.play().catch(() => {});
-  }
-};
+// -------- Quiz logic --------
+const handleAnswer = (index) => {
+  if (buttonsDisabled.value) return
 
-watch(videoSrc, async () => {
-  await nextTick();
-  if (videoPlayer.value) {
-    videoPlayer.value.load();
-    videoPlayer.value.play().catch(() => {});
+  selectedAnswer.value = index
+  buttonsDisabled.value = true
+
+  const isCorrect = index === correctIndex.value
+  if (isCorrect) {
+    score.value++
+    feedbackMessage.value = "✅ Правильно!"
+  } else {
+    feedbackMessage.value = "❌ Неправильно!"
   }
-});
+
+  feedbackVisible.value = true
+}
+
+const nextQuestion = () => {
+  currentIndex.value++
+  selectedAnswer.value = null
+  buttonsDisabled.value = false
+  feedbackVisible.value = false
+}
+
+const finishQuiz = () => {
+  showQuiz.value = false
+  showFinalVideo()
+}
+
+// -------- UI helpers --------
+const getAnswerClass = (index) => {
+  if (selectedAnswer.value === null) return ''
+  if (index === correctIndex.value) return 'correct'
+  if (index === selectedAnswer.value) return 'wrong'
+  return ''
+}
 </script>
 
 <style scoped>

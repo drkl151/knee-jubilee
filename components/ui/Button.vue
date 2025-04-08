@@ -1,7 +1,11 @@
 <template>
-    <button :class="['main-button', buttonSizeClass]" @click="handleClick">
-        {{ buttonText }}
-    </button>
+  <button
+    :class="['main-button', buttonSizeClass, { 'disabled': disabled }]"
+    @click="handleClick"
+    :disabled="disabled"
+  >
+    {{ buttonText }}
+  </button>
 </template>
 
 <script setup>
@@ -11,6 +15,10 @@ const props = defineProps({
     buttonText: {
         type: String,
         required: true,
+    },
+    disabled: {
+        type: Boolean,
+        default: false,
     },
     size: {
         type: String,
@@ -65,5 +73,11 @@ function handleClick() {
 .small-button {
     font-size: 14px;
     padding: 8px 16px;
+}
+
+.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  pointer-events: none;
 }
 </style>
