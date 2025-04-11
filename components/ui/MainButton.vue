@@ -1,29 +1,38 @@
 <template>
-  <button :class="['main-button', 'style-bordeaux', buttonSizeClass]" @click="handleClick">
+  <button class="main-button style-bordeaux" :style="buttonStyle" @click="handleClick">
     {{ buttonText }}
   </button>
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue';
+import { computed, defineProps, defineEmits } from 'vue';
 
 const props = defineProps({
   buttonText: {
     type: String,
     required: true,
   },
-  size: {
+  font: {
+    type: Number,
+    default: 20,
+  },
+  padding: {
     type: String,
-    default: 'small',
-    validator: (value) => ['small', 'large'].includes(value),
+    default: '12px 24px',
+  },
+  width: {
+    type: String,
+    default: 'fit-content',
   },
 });
 
 const emit = defineEmits(['clicked']);
 
-const buttonSizeClass = computed(() => {
-  return props.size === 'large' ? 'large-button' : 'small-button';
-});
+const buttonStyle = computed(() => ({
+  fontSize: `${props.font}px`,
+  padding: props.padding,
+  width: props.width,
+}));
 
 function handleClick() {
   emit('clicked');
@@ -34,8 +43,6 @@ function handleClick() {
 .main-button {
   display: inline-block;
   margin: 0 auto;
-  padding: 12px 24px;
-  font-size: 28px;
   font-weight: bold;
   font-family: 'Trajan Pro', serif;
   color: var(--main-accent-color);
@@ -53,7 +60,6 @@ function handleClick() {
   border-color: #c93232;
   color: var(--main-accent-light);
   text-shadow: 0 0 10px rgba(255, 180, 71, 0.8);
-  transform: translateY(-2px);
 }
 
 .main-button:active {
@@ -62,25 +68,5 @@ function handleClick() {
     0 2px 0 #5a1111,
     0 2px 6px rgba(0, 0, 0, 0.8);
   transform: translateY(2px);
-}
-
-.custom-button {
-  padding: 10px;
-  font-size: 16px;
-  cursor: pointer;
-  border: none;
-  border-radius: 5px;
-}
-
-.large-button {
-  width: 30%;
-  font-size: 20px;
-  padding: 20px 30px;
-}
-
-.small-button {
-  width: 10%;
-  font-size: 14px;
-  padding: 8px 16px;
 }
 </style>

@@ -8,6 +8,7 @@
       :loop="isIdle"
       :show-skip="showSkip"
       :muted="!videoStarted"
+      :can-play="!isGameAlreadyPlayed"
       @started="onVideoStarted"
       @ended="onVideoEnded"
       @skip="nextVideo"
@@ -24,6 +25,8 @@
         />
       </div>
     </transition>
+
+    <CoinsModal :visible="showCoinsModal" :coins="10" :on-clicked="returnToMap" />
   </div>
 </template>
 
@@ -34,6 +37,8 @@ import { useRouter } from 'vue-router';
 import { useAlert } from '@/composables/useAlert';
 
 import VideoPlayer from '@/components/VideoPlayer.vue';
+import CoinsModal from '@/components/CoinsModal.vue';
+
 import Input from '@/components/ui/Input.vue';
 import Button from '@/components/ui/Button.vue';
 import Alert from '@/components/ui/Alert.vue';
@@ -56,18 +61,22 @@ const videoSrc = ref(videos.start);
 const videoStarted = ref(false);
 const showSkip = ref(false);
 const showInput = ref(false);
+const showCoinsModal = ref(false);
 const userAnswer = ref('');
 const isCorrect = ref(false);
 
 // -------- Computed --------
 const isIdle = computed(() => videoSrc.value === videos.idle);
 const isAnswerDisabled = computed(() => videoSrc.value === videos.wrong);
+const isGameAlreadyPlayed = computed(() => localStorage.getItem('wk_riddle_completed') === 'true');
 
 onMounted(() => {
-  if (localStorage.getItem('wk_riddle_completed') === 'true') {
-    router.push('/');
+  if (isGameAlreadyPlayed.value) {
+    showCoinsModal.value = true;
+    triggerAlert('You have already completed this riddle');
+  } else {
+    triggerAlert('Press anywhere to continue');
   }
-  triggerAlert('Press anywhere to continue');
 });
 
 // -------- Video event handlers --------
@@ -90,6 +99,8 @@ function onVideoEnded() {
     showInput.value = true;
   } else if (videoSrc.value === videos.wrong) {
     videoSrc.value = videos.idle;
+  } else if (videoSrc.value === videos.correct) {
+    showCoinsModal.value = true;
   }
 }
 
@@ -109,6 +120,10 @@ function checkAnswer() {
 
     showInput.value = false;
   }
+}
+
+function returnToMap() {
+  router.push('/');
 }
 </script>
 

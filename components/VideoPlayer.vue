@@ -38,6 +38,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  canPlay: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const emit = defineEmits(['started', 'ended', 'skip']);
@@ -59,6 +63,8 @@ function playVideo() {
 }
 
 function handleClick() {
+  if (!props.canPlay) return;
+
   if (!hasInteracted.value) {
     hasInteracted.value = true;
     playVideo();

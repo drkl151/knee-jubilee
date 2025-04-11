@@ -1,8 +1,8 @@
 <template>
   <div>
-    <header></header>
+    <header><Interface></Interface></header>
 
-    <main>
+    <main class="fullscreen">
       <NuxtPage />
     </main>
 

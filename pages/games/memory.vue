@@ -1,102 +1,150 @@
 <template>
   <div class="wrapper">
-    <ul class="cards">
-      <li
-        v-for="(card, index) in shuffledCards"
-        :key="index"
-        class="card"
-        :class="{ flip: card.flipped, shake: card.shake }"
-        @click="flipCard(card, index)"
-      >
-        <div class="view front-view">
-          <img src="/games/memory/img/icon.webp" alt="icon" />
-        </div>
-        <div class="view back-view">
-          <img :src="`/games/memory/img/${card.image}`" alt="card-img" />
-        </div>
-      </li>
-    </ul>
+    <Alert v-if="showAlert" :message="alertMessage" />
 
-    <div class="details">
-      <p class="time">
-        Time:
-        <span
-          ><b>{{ timeLeft }}</b
-          >s</span
+    <VideoPlayer
+      :poster="posterSrc"
+      :video-src="videoSrc"
+      :loop="isIdle"
+      :show-skip="showSkip"
+      @started="onVideoStarted"
+      @ended="onVideoEnd"
+      @skip="nextVideo"
+    />
+
+    <div class="cards-block style-bordeaux">
+      <ul class="cards">
+        <li
+          v-for="(card, index) in shuffledCards"
+          :key="index"
+          class="card"
+          :class="{ flip: card.flipped, shake: card.shake }"
+          @click="flipCard(card, index)"
         >
-      </p>
-      <p class="flips">
-        Flips:
-        <span
-          ><b>{{ flips }}</b></span
-        >
-      </p>
-      <button @click="shuffleCards">Refresh</button>
+          <div class="view front-view">
+            <img src="/games/memory/img/icon.webp" alt="icon" />
+          </div>
+          <div class="view back-view">
+            <img :src="`/games/memory/img/${card.image}`" alt="card-img" />
+          </div>
+        </li>
+      </ul>
+
+      <div class="details style-bordeaux c-white">
+        <p class="time">
+          Time:
+          <span
+            ><b>{{ timeLeft }}</b
+            >s</span
+          >
+        </p>
+        <p class="flips">
+          Flips:
+          <span
+            ><b>{{ flips }}</b></span
+          >
+        </p>
+        <Button button-text="Refresh" size="large" @clicked="shuffleCards" />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed, watch } from 'vue';
+import VideoPlayer from '@/components/VideoPlayer.vue';
+import Alert from '@/components/ui/Alert.vue';
+import Button from '@/components/ui/Button.vue';
 
-const cardImages = ['1.webp', '2.webp', '3.webp', '4.webp', '5.webp', '6.webp'];
-
-const maxTime = 20;
-const timeLeft = ref(maxTime);
+// -------- State Management --------
+const showAlert = ref(false);
+const alertMessage = ref('');
+const timeLeft = ref(20);
 const flips = ref(0);
 const matchedPairs = ref(0);
 const isPlaying = ref(false);
 const disableDeck = ref(false);
-let timer = null;
-
+const videoStarted = ref(false);
 const cardOne = ref(null);
 const cardTwo = ref(null);
 
+const cardImages = ['1.webp', '2.webp', '3.webp', '4.webp', '5.webp', '6.webp'];
 const shuffledCards = reactive([]);
 
-function createShuffledCards() {
+// -------- Video Handling --------
+const videoSrc = ref('/games/memory/video/wr_start.mp4');
+const posterSrc = '/games/memory/wr_start.png';
+const showSkip = ref(false);
+
+const videos = {
+  start: '/games/memory/video/wr_start.mp4',
+  idle: '/games/memory/video/wr_idle.mp4',
+};
+
+const isIdle = computed(() => videoSrc.value === videos.idle);
+
+const onVideoStarted = () => {
+  showAlert.value = false;
+  showSkip.value = true;
+  videoStarted.value = true;
+};
+
+const nextVideo = () => {
+  if (videoSrc.value === videos.start) {
+    videoSrc.value = videos.idle;
+    showSkip.value = false;
+    showAlert.value = true;
+    alertMessage.value = 'Find matching pairs from memories in 20 seconds!';
+  }
+};
+
+const onVideoEnd = () => {
+  nextVideo();
+};
+
+// -------- Game Logic --------
+const createShuffledCards = () => {
   const cards = [...cardImages, ...cardImages];
   cards.sort(() => Math.random() - 0.5);
-  return cards.map((img) => ({
-    image: img,
+  return cards.map((image) => ({
+    image,
     flipped: false,
     shake: false,
   }));
-}
+};
 
-function shuffleCards() {
-  timeLeft.value = maxTime;
+const shuffleCards = () => {
+  timeLeft.value = 20;
   flips.value = 0;
   matchedPairs.value = 0;
   isPlaying.value = false;
   disableDeck.value = false;
-  clearInterval(timer);
   cardOne.value = null;
   cardTwo.value = null;
   shuffledCards.splice(0, shuffledCards.length, ...createShuffledCards());
-}
+};
 
-function startTimer() {
-  timer = setInterval(() => {
+const startTimer = () => {
+  const timer = setInterval(() => {
     if (timeLeft.value <= 0) {
       clearInterval(timer);
     } else {
       timeLeft.value -= 1;
     }
   }, 1000);
-}
+};
 
-function resetCards() {
+const resetCards = () => {
   cardOne.value = null;
   cardTwo.value = null;
   disableDeck.value = false;
-}
+};
 
-function checkMatch() {
+const checkMatch = () => {
   const first = shuffledCards[cardOne.value.index];
   const second = shuffledCards[cardTwo.value.index];
 
-  if (cardOne.value.image === cardTwo.value.image) {
+  if (first.image === second.image) {
     matchedPairs.value += 1;
     if (matchedPairs.value === cardImages.length) {
       clearInterval(timer);
@@ -113,9 +161,9 @@ function checkMatch() {
       resetCards();
     }, 1000);
   }
-}
+};
 
-function flipCard(card, index) {
+const flipCard = (card, index) => {
   if (!isPlaying.value) {
     isPlaying.value = true;
     startTimer();
@@ -134,19 +182,24 @@ function flipCard(card, index) {
     disableDeck.value = true;
     checkMatch();
   }
-}
+};
 
-onMounted(shuffleCards);
+// -------- Lifecycle Hooks --------
+onMounted(() => {
+  shuffleCards();
+  showAlert.value = true;
+  alertMessage.value = 'Press anywhere to continue';
+});
+
+// -------- Watchers --------
+watch(timeLeft, (newTime) => {
+  if (newTime <= 0 && isPlaying.value) {
+    console.log('time is over');
+  }
+});
 </script>
 
 <style scoped>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Trajan Pro', serif;
-}
-
 p {
   font-size: 20px;
 }
@@ -164,13 +217,6 @@ body {
   background: #6563ff;
 }
 
-.wrapper {
-  padding: 25px;
-  background: #f8f8f8;
-  border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-}
-
 .cards,
 .card,
 .view,
@@ -181,11 +227,25 @@ p {
   justify-content: center;
 }
 
-.cards {
+.cards-block {
   height: 550px;
   width: 700px;
+  position: absolute;
+  z-index: 7777;
+  left: 10%;
+  top: 20%;
+  padding: 30px;
+}
+
+.cards {
+  height: 100%;
+  width: 100%;
+  display: flex;
   flex-wrap: wrap;
-  gap: 15px;
+  gap: 10px;
+  padding: 0;
+  margin-top: 0;
+  margin-bottom: 50px;
 }
 
 .cards .card {
@@ -261,18 +321,11 @@ p {
   width: 100%;
   margin-top: 15px;
   padding: 0 20px;
-  border-radius: 7px;
-  background: #fff;
-  height: calc(100% / 4 - 30px);
   justify-content: space-between;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
 .details p {
   font-size: 18px;
-  height: 17px;
-  padding-right: 18px;
-  border-right: 1px solid #ccc;
 }
 
 .details p span {
@@ -281,22 +334,6 @@ p {
 
 .details p b {
   font-weight: 500;
-}
-
-.details button {
-  cursor: pointer;
-  font-size: 14px;
-  color: #6563ff;
-  border-radius: 4px;
-  padding: 4px 11px;
-  background: #fff;
-  border: 2px solid #6563ff;
-  transition: 0.3s ease;
-}
-
-.details button:hover {
-  color: #fff;
-  background: #6563ff;
 }
 
 @media screen and (max-width: 800px) {
