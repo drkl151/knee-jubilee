@@ -12,7 +12,7 @@
       @skip="nextVideo"
     />
 
-    <div class="cards-block style-bordeaux">
+    <div v-if="showCardsBlock" class="cards-block style-bordeaux">
       <ul class="cards">
         <li
           v-for="(card, index) in shuffledCards"
@@ -44,7 +44,12 @@
             ><b>{{ flips }}</b></span
           >
         </p>
-        <Button button-text="Refresh" size="large" @clicked="shuffleCards" />
+        <MainButton
+          class="no-border-shadow"
+          button-text="Refresh"
+          size="large"
+          @clicked="shuffleCards"
+        />
       </div>
     </div>
   </div>
@@ -54,9 +59,10 @@
 import { ref, reactive, onMounted, computed, watch } from 'vue';
 import VideoPlayer from '@/components/VideoPlayer.vue';
 import Alert from '@/components/ui/Alert.vue';
-import Button from '@/components/ui/Button.vue';
+import MainButton from '@/components/ui/MainButton.vue';
 
 // -------- State Management --------
+const showCardsBlock = ref(false);
 const showAlert = ref(false);
 const alertMessage = ref('');
 const timeLeft = ref(20);
@@ -92,6 +98,7 @@ const onVideoStarted = () => {
 const nextVideo = () => {
   if (videoSrc.value === videos.start) {
     videoSrc.value = videos.idle;
+    showCardsBlock.value = true;
     showSkip.value = false;
     showAlert.value = true;
     alertMessage.value = 'Find matching pairs from memories in 20 seconds!';
@@ -321,6 +328,7 @@ p {
   width: 100%;
   margin-top: 15px;
   padding: 0 20px;
+  gap: 115px;
   justify-content: space-between;
 }
 

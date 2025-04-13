@@ -1,6 +1,10 @@
 <template>
-  <button class="main-button style-bordeaux" :style="buttonStyle" @click="handleClick">
-    {{ buttonText }}
+  <button
+    :class="['main-button style-bordeaux', { disabled: disabled }]"
+    :style="buttonStyle"
+    @click="handleClick"
+  >
+    <slot>{{ buttonText }}</slot>
   </button>
 </template>
 
@@ -23,6 +27,10 @@ const props = defineProps({
   width: {
     type: String,
     default: 'fit-content',
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
   },
 });
 
@@ -68,5 +76,21 @@ function handleClick() {
     0 2px 0 #5a1111,
     0 2px 6px rgba(0, 0, 0, 0.8);
   transform: translateY(2px);
+}
+
+.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.main-button.no-border-shadow {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.main-button.no-border-shadow:active {
+  box-shadow: none !important;
 }
 </style>

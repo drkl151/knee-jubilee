@@ -13,52 +13,55 @@
       @skip="nextVideo"
     />
 
-    <div v-if="showQuiz" class="quiz-container">
+    <div v-if="showQuiz" class="quiz-container style-bordeaux c-white">
       <h2>{{ currentQuestion.question }}</h2>
-      <div>
-        <button
+      <div class="answers">
+        <MainButton
           v-for="(answer, index) in currentQuestion.answers"
           :key="index"
           class="answer-btn"
+          :button-text="getAnswerText(answer)"
           :class="getAnswerClass(index)"
           :disabled="buttonsDisabled"
           @click="handleAnswer(index)"
         >
-          <div v-if="answer.image">
-            <img :src="answer.image" :alt="answer.text" />
-            <p>{{ answer.text }}</p>
-          </div>
-          <div v-else>
-            <p>{{ answer }}</p>
-          </div>
-        </button>
+          <template v-if="answer.image">
+            <img :src="answer.image" :alt="getAnswerText(answer)" />
+            <p>{{ getAnswerText(answer) }}</p>
+          </template>
+          <template v-else>
+            <p>{{ getAnswerText(answer) }}</p>
+          </template>
+        </MainButton>
       </div>
 
-      <p v-if="feedbackVisible" class="feedback">{{ feedbackMessage }}</p>
+      <div class="flex-center column">
+        <p v-if="feedbackVisible" class="feedback">
+          {{ feedbackMessage }}: {{ score }} of {{ questionsFromQuiz.length }}
+        </p>
 
-      <button
-        v-if="feedbackVisible"
-        class="next-btn"
-        @click="isLastQuestion ? finishQuiz : nextQuestion"
-      >
-        {{ isLastQuestion ? 'Завершити' : 'Далі' }}
-      </button>
+        <MainButton
+          v-if="feedbackVisible"
+          class="no-border-shadow"
+          :font="20"
+          :button-text="isLastQuestion ? 'Завершити' : 'Далі'"
+          @click="nextStep"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-// -------- Imports --------
 import { ref, computed, onMounted } from 'vue';
 import { useAlert } from '@/composables/useAlert';
 import questionsFromQuiz from '~/assets/data/questionsFromQuiz.json';
 import VideoPlayer from '@/components/VideoPlayer.vue';
 import Alert from '@/components/ui/Alert.vue';
+import MainButton from '@/components/ui/MainButton.vue';
 
-// -------- Alert system --------
 const { showAlert, alertMessage, triggerAlert, hideAlert } = useAlert();
 
-// -------- Video setup --------
 const videoSrc = ref('/games/quiz/video/ww_start.mp4');
 const posterSrc = '/games/quiz/ww_start.png';
 const showQuiz = ref(false);
@@ -73,7 +76,6 @@ const videos = {
   bad: '/games/quiz/video/ww_bad.mp4',
 };
 
-// -------- Quiz state --------
 const currentIndex = ref(0);
 const selectedAnswer = ref(null);
 const buttonsDisabled = ref(false);
@@ -81,18 +83,21 @@ const feedbackMessage = ref('');
 const feedbackVisible = ref(false);
 const score = ref(0);
 
-// -------- Computed --------
 const isIdle = computed(() => videoSrc.value === videos.idle);
 const currentQuestion = computed(() => questionsFromQuiz[currentIndex.value]);
 const correctIndex = computed(() => currentQuestion.value.correct);
 const isLastQuestion = computed(() => currentIndex.value === questionsFromQuiz.length - 1);
 
-// -------- Lifecycle --------
+const correctSound = new Audio('/audio/clarity_right.mp3');
+const wrongSound = new Audio('/audio/wrong.mp3');
+
 onMounted(() => {
   triggerAlert('Press anywhere to continue');
+  questionsFromQuiz.forEach((q) => {
+    q.answers = q.answers.map((ans) => (typeof ans === 'string' ? { text: ans } : ans));
+  });
 });
 
-// -------- Video control --------
 const onVideoStarted = () => {
   hideAlert();
   showSkip.value = true;
@@ -101,6 +106,8 @@ const onVideoStarted = () => {
 
 const nextVideo = () => {
   if (videoSrc.value === videos.start) {
+    triggerAlert('Answer all the quiz questions');
+
     videoSrc.value = videos.idle;
     showSkip.value = false;
     showQuiz.value = true;
@@ -122,19 +129,26 @@ const showFinalVideo = () => {
   }
 };
 
-// -------- Quiz logic --------
+const getAnswerText = (answer) => {
+  return typeof answer === 'string' ? answer : answer.text;
+};
+
 const handleAnswer = (index) => {
   if (buttonsDisabled.value) return;
-
   selectedAnswer.value = index;
   buttonsDisabled.value = true;
-
   const isCorrect = index === correctIndex.value;
+
   if (isCorrect) {
     score.value += 1;
-    feedbackMessage.value = '✅ Правильно!';
+    feedbackMessage.value = '✅ Correct!';
+    correctSound.currentTime = 0;
+    correctSound.play();
   } else {
-    feedbackMessage.value = '❌ Неправильно!';
+    score.value = Math.max(0, score.value - 1);
+    feedbackMessage.value = '❌ Wrong!';
+    wrongSound.currentTime = 0;
+    wrongSound.play();
   }
 
   feedbackVisible.value = true;
@@ -147,12 +161,15 @@ const nextQuestion = () => {
   feedbackVisible.value = false;
 };
 
-const finishQuiz = () => {
-  showQuiz.value = false;
-  showFinalVideo();
+const nextStep = () => {
+  if (isLastQuestion.value) {
+    showQuiz.value = false;
+    showFinalVideo();
+  } else {
+    nextQuestion();
+  }
 };
 
-// -------- UI helpers --------
 const getAnswerClass = (index) => {
   if (selectedAnswer.value === null) return '';
   if (index === correctIndex.value) return 'correct';
@@ -162,12 +179,54 @@ const getAnswerClass = (index) => {
 </script>
 
 <style scoped>
+.quiz-container {
+  min-height: 550px;
+  min-width: 700px;
+  max-width: 850px;
+  position: absolute;
+  z-index: 7777;
+  right: 15%;
+  top: 20%;
+  padding: 60px 20px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.quiz-container h2 {
+  margin: 0 0 15px 0;
+}
+.quiz-container p {
+  margin: 0;
+}
+
+.answers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.answer-btn {
+  box-shadow:
+    0 4px 0 #0000007d,
+    0 4px 10px rgba(0, 0, 0, 0.6);
+}
 .answer-btn.correct {
   border: 3px solid #4caf50;
+  box-shadow:
+    0 4px 0 #3e8341,
+    0 4px 10px rgba(0, 0, 0, 0.6);
+  opacity: 1 !important;
 }
 
 .answer-btn.wrong {
-  border: 3px solid #f44336;
+  border: 3px solid #ff1100;
+  box-shadow:
+    0 4px 0 #a93434,
+    0 4px 10px rgba(0, 0, 0, 0.6);
 }
 
 .answer-btn:disabled {
@@ -178,35 +237,5 @@ const getAnswerClass = (index) => {
   margin-top: 10px;
   font-weight: bold;
   font-size: 18px;
-}
-
-.quiz-container {
-  position: absolute;
-  right: 21%;
-  top: 17%;
-}
-
-.answer-btn {
-  margin: 10px;
-  padding: 10px;
-  background: #f0f0f0;
-  border: 1px solid #ccc;
-  cursor: pointer;
-  text-align: center;
-}
-
-.next-btn {
-  margin-top: 10px;
-  padding: 8px 16px;
-  background-color: #1976d2;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.next-btn:hover {
-  background-color: #115293;
 }
 </style>

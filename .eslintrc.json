@@ -11,7 +11,10 @@
     "plugin:nuxt/recommended",
     "plugin:prettier/recommended"
   ],
-  "plugins": ["prettier", "nuxt"],
+  "plugins": [
+    "prettier",
+    "nuxt"
+  ],
   "globals": {
     "defineNuxtConfig": "readonly"
   },
@@ -19,13 +22,17 @@
     "no-console": [
       "warn",
       {
-        "allow": ["warn", "error"]
+        "allow": [
+          "warn",
+          "error"
+        ]
       }
     ],
     "vue/multi-word-component-names": "off",
     "import/prefer-default-export": "off",
     "import/extensions": "off",
     "import/no-unresolved": "off",
+    "import/no-extraneous-dependencies": "off",
     "no-undef": "off",
     "prettier/prettier": "error",
     "no-unused-vars": "error",

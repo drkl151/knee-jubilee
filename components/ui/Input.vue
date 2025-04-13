@@ -1,5 +1,5 @@
 <template>
-  <div class="text-input">
+  <div class="input-container">
     <label v-if="label">{{ label }}</label>
     <input
       v-model="modelValueInternal"
@@ -52,6 +52,11 @@ const modelValueInternal = computed({
 </script>
 
 <style scoped>
+.input-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 .input {
   background: none;
   border: 2px solid var(--main-accent-color);

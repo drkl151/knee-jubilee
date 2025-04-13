@@ -1,20 +1,12 @@
 <template>
   <div class="interface">
-    <div class="score">{{ score }}</div>
+    <div class="score">{{ coinStore.coins }}</div>
     <img src="/img/icons/coins.png" alt="Coins" class="coin-icon" />
   </div>
 </template>
 
 <script setup>
-const score = ref(0);
-
-const updateScore = () => {
-  score.value = localStorage.getItem('player_coins') || 0;
-};
-
-onMounted(() => {
-  updateScore();
-});
+const coinStore = useCoinStore();
 </script>
 
 <style scoped>
