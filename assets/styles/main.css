@@ -68,6 +68,14 @@ video {
   color: var(--main-white);
 }
 
+.c-accent {
+  color: var(--main-accent-color);
+}
+
+.c-accent-light {
+  color: var(--main-accent-light);
+}
+
 .style-bordeaux {
   background: linear-gradient(180deg, #252525, #111);
   border: 3px solid var(--cherry);
@@ -75,6 +83,11 @@ video {
   box-shadow:
     0 4px 0 var(--cherry-dark),
     0 4px 10px rgba(0, 0, 0, 0.6);
+}
+
+.coin-icon {
+  width: 40px;
+  margin-left: 10px;
 }
 
 /* animation */

@@ -5,7 +5,6 @@
     </audio>
 
     <div id="map">
-      <!-- Видео с правильным путем -->
       <video ref="videoMap" :src="getPathForMapVideo('map.mp4')" loop autoplay></video>
 
       <NuxtLink

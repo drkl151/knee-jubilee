@@ -2,8 +2,11 @@
   <div v-if="visible" class="modal-overlay fade-in">
     <div class="modal-content scale-up style-bordeaux c-white">
       <h2 class="modal-title">{{ title }}</h2>
-      <img src="/img/icons/coins.png" alt="Coins" class="coin-image" />
-      <p class="modal-coins">{{ coins }} coins!</p>
+      <div v-if="coins !== 0">
+        <img src="/img/icons/coins.png" alt="Coins" class="coin-image" />
+        <p class="modal-coins">{{ coins }} coins!</p>
+      </div>
+
       <MainButton
         button-text="Continue"
         size="large"
@@ -75,6 +78,9 @@ watch(
   max-width: 500px;
   width: 100%;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .coin-image {

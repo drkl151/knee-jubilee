@@ -1,36 +1,62 @@
 <template>
-  <div class="shop-container">
-    <h1 class="title">Secret Shop</h1>
-    <swiper-container
-      ref="swiperRef"
-      :slides-per-view="3"
-      :loop="true"
-      :navigation="true"
-      class="mySwiper"
-    >
-      <swiper-slide v-for="item in items" :key="item.id">
-        <div class="shop-item">
-          <img :src="item.image" alt="Item" class="item-img" />
-          <h2 class="item-title">{{ item.description }}</h2>
-          <p class="item-price">{{ item.price }} coins</p>
+  <div class="shop fullscreen">
+    <div class="shop-container fullscreen c-accent">
+      <swiper-container
+        ref="swiperRef"
+        :slides-per-view="1"
+        :loop="true"
+        :navigation="true"
+        class="mySwiper"
+      >
+        <swiper-slide v-for="item in items" :key="item.id" class="swiper-slide">
+          <div class="shop-item style-bordeaux">
+            <h2 class="item-title">{{ item.description }}</h2>
 
-          <button class="buy-button" :disabled="isPurchased(item.id)" @click="buyItem(item.id)">
-            {{ isPurchased(item.id) ? 'Куплено' : 'Купить' }}
-          </button>
-        </div>
-      </swiper-slide>
-    </swiper-container>
+            <div class="flex-center" style="gap: 20px">
+              <img :src="item.image" alt="Item" class="item-img" />
+              <p v-if="isPurchased(item.id)">{{ item.location }}</p>
+            </div>
+
+            <p class="item-title">
+              {{ item.price }} <img class="coin-icon" src="/img/icons/coins.png" />
+            </p>
+
+            <MainButton :disabled="isPurchased(item.id)" @click="buyItem(item.id)">
+              {{ isPurchased(item.id) ? 'Purchased' : 'Buy' }}
+            </MainButton>
+          </div>
+        </swiper-slide>
+      </swiper-container>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import MainButton from '@/components/ui/MainButton.vue';
 
 const items = ref([
-  { id: 'item1', description: 'Описание предмета 1', price: 10, image: '/img/shop/item1.png' },
-  { id: 'item2', description: 'Описание предмета 2', price: 20, image: '/img/shop/item2.png' },
-  { id: 'item3', description: 'Описание предмета 3', price: 30, image: '/img/shop/item3.png' },
-  { id: 'item4', description: 'Описание предмета 4', price: 40, image: '/img/shop/item4.png' },
+  {
+    id: 'item1',
+    description: 'Healing Salve',
+    price: 10,
+    image: '/img/shop/flasc.png',
+    location: 'This great item will give you energy, look for it on the snack shelf',
+  },
+  {
+    id: 'item2',
+    description: 'Iron Branch',
+    price: 20,
+    image: '/img/shop/iron_branch.png',
+    location: 'This great item will give you energy, look for it on the snack shelf',
+  },
+  {
+    id: 'item3',
+    description: 'Tango',
+    price: 30,
+    image: '/img/shop/tango.png',
+    location: 'This great item will give you energy, look for it on the snack shelf',
+  },
 ]);
 
 const swiperRef = ref(null);
@@ -40,7 +66,6 @@ const buyItem = (id) => {
   if (!purchasedItems.value.includes(id)) {
     purchasedItems.value.push(id);
     localStorage.setItem('purchasedItems', JSON.stringify(purchasedItems.value));
-    alert('Предмет куплен!');
   }
 };
 
@@ -55,62 +80,51 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.shop-container {
-  position: relative;
-  top: 40%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding: 20px;
+.shop {
+  background-image: url('/img/secret-shop.png');
+  background-size: cover;
+  background-position: bottom;
 }
 
-.title {
-  text-align: center;
-  margin-bottom: 32px;
-  font-size: 32px;
+.shop-container {
+  padding: 16% 10% 2%;
+  backdrop-filter: blur(4px);
+}
+
+.swiper-slide {
+  transform: scale(0.5);
+  transition: 0.3s ease;
+}
+
+.swiper-slide-active {
+  transform: scale(1);
+  transition: transform 0.3s ease;
+}
+
+.swiper-button-next svg,
+.swiper-button-prev svg {
+  stroke-width: 1px;
+  stroke: azure;
 }
 
 .shop-item {
-  border: 1px solid #ccc;
-  border-radius: 12px;
-  padding: 16px;
+  border-radius: 13px;
+  box-shadow: none;
+  padding: 32px 25px 40px;
   text-align: center;
-  background: #fff;
-  max-width: 300px;
+  max-width: 35%;
   margin: auto;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .item-img {
-  width: 100%;
+  max-height: 250px;
   height: auto;
   object-fit: contain;
   margin-bottom: 12px;
 }
 
 .item-title {
-  font-size: 18px;
-  margin-bottom: 8px;
-}
-
-.item-price {
-  font-weight: bold;
-  color: #4caf50;
-  margin-bottom: 12px;
-}
-
-.buy-button {
-  padding: 8px 16px;
-  border: none;
-  background: #4caf50;
-  color: white;
-  font-weight: bold;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.buy-button:disabled {
-  background: #999;
-  cursor: not-allowed;
+  font-size: 22px;
+  margin-bottom: 30px;
 }
 </style>

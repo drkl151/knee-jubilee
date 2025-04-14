@@ -27,25 +27,29 @@
       </div>
     </transition>
 
-    <LazyCoinsModal :visible="showCoinsModal" :coins="10" :on-clicked="returnToMap" />
+    <CoinsModal
+      title="You have guessed the riddle"
+      :visible="showCoinsModal"
+      :coins="coinsEarned"
+      :on-clicked="returnToMap"
+    />
   </div>
 </template>
 
 <script setup>
 // -------- Imports --------
 import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 import { useAlert } from '@/composables/useAlert';
 
 import VideoPlayer from '@/components/VideoPlayer.vue';
-import LazyCoinsModal from '@/components/CoinsModal.vue';
+import CoinsModal from '@/components/CoinsModal.vue';
 
 import Input from '@/components/ui/Input.vue';
 import MainButton from '@/components/ui/MainButton.vue';
 import Alert from '@/components/ui/Alert.vue';
 
 // -------- Router & alert composable --------
-const router = useRouter();
+const { returnToMap } = useGlobalUtils();
 const { showAlert, alertMessage, triggerAlert, hideAlert } = useAlert();
 
 // -------- Video sources --------
@@ -58,6 +62,7 @@ const videos = {
 const posterSrc = '/games/riddle/wk_start.png';
 
 // -------- Reactive state --------
+const coinsEarned = ref(0);
 const videoSrc = ref(videos.start);
 const videoStarted = ref(false);
 const showSkip = ref(false);
@@ -108,6 +113,7 @@ function onVideoEnded() {
   } else if (videoSrc.value === videos.correct) {
     localStorage.setItem('wk_riddle_completed', 'true');
     showCoinsModal.value = true;
+    coinsEarned.value = 10;
     coinStore.addCoins(10);
   }
 }
@@ -124,10 +130,6 @@ function checkAnswer() {
     hideAlert();
     showInput.value = false;
   }
-}
-
-function returnToMap() {
-  router.push('/');
 }
 </script>
 
