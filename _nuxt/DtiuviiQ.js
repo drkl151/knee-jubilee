@@ -1,0 +1,1 @@
+import{p as i,aa as o}from"./Hc6fgaMG.js";const n=i("/img/icons/coins.png"),e=o("coinStore",{state:()=>({coins:0}),actions:{addCoins(s){this.coins+=s},spendCoins(s){return this.coins>=s?(this.coins-=s,!0):!1}},persist:!0});export{n as _,e as u};

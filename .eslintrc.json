@@ -1,0 +1,36 @@
+{
+  "root": true,
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "node": true
+  },
+  "extends": [
+    "airbnb-base",
+    "plugin:vue/vue3-recommended",
+    "plugin:nuxt/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "plugins": ["prettier", "nuxt"],
+  "globals": {
+    "defineNuxtConfig": "readonly"
+  },
+  "rules": {
+    "no-console": [
+      "warn",
+      {
+        "allow": ["warn", "error"]
+      }
+    ],
+    "vue/multi-word-component-names": "off",
+    "import/prefer-default-export": "off",
+    "import/extensions": "off",
+    "import/no-unresolved": "off",
+    "import/no-extraneous-dependencies": "off",
+    "no-undef": "off",
+    "prettier/prettier": "error",
+    "no-unused-vars": "error",
+    "vue/attributes-order": "error",
+    "no-param-reassign": "off"
+  }
+}
