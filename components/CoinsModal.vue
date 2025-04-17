@@ -40,18 +40,29 @@ const props = defineProps({
   },
 });
 
-const playSound = () => {
-  new Audio('/audio/coins.wav').play();
-};
+const coinsSound = new Audio('/audio/coins.wav');
+const wrongSound = new Audio('/audio/wrong.mp3');
 
 onMounted(() => {
-  if (props.visible) playSound();
+  if (props.visible) {
+    if (props.coins !== 0) {
+      coinsSound.play();
+    } else {
+      wrongSound.play();
+    }
+  }
 });
 
 watch(
   () => props.visible,
   (newVal) => {
-    if (newVal) playSound();
+    if (newVal) {
+      if (props.coins !== 0) {
+        coinsSound.play();
+      } else {
+        wrongSound.play();
+      }
+    }
   }
 );
 </script>
@@ -68,7 +79,7 @@ watch(
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999;
+  z-index: 9998;
 }
 
 .modal-content {

@@ -1,5 +1,7 @@
 <template>
   <div class="shop fullscreen">
+    <Alert v-if="showAlert" :message="alertMessage" />
+
     <div class="shop-container fullscreen c-accent">
       <swiper-container
         ref="swiperRef"
@@ -8,7 +10,7 @@
         :navigation="true"
         class="mySwiper"
       >
-        <swiper-slide v-for="item in items" :key="item.id" class="swiper-slide">
+        <swiper-slide v-for="item in itemsForShop" :key="item.id" class="swiper-slide">
           <div class="shop-item style-bordeaux">
             <h2 class="item-title">{{ item.description }}</h2>
 
@@ -32,45 +34,66 @@
 </template>
 
 <script setup>
+// -------- Imports --------
 import { ref, onMounted } from 'vue';
+import itemsForShop from '@/assets/data/itemsForShop.json';
+import { useCoinStore } from '@/stores/scoreCoins';
 import MainButton from '@/components/ui/MainButton.vue';
+import Alert from '@/components/ui/Alert.vue';
 
-const items = ref([
-  {
-    id: 'item1',
-    description: 'Healing Salve',
-    price: 10,
-    image: '/img/shop/flasc.png',
-    location: 'This great item will give you energy, look for it on the snack shelf',
-  },
-  {
-    id: 'item2',
-    description: 'Iron Branch',
-    price: 20,
-    image: '/img/shop/iron_branch.png',
-    location: 'This great item will give you energy, look for it on the snack shelf',
-  },
-  {
-    id: 'item3',
-    description: 'Tango',
-    price: 30,
-    image: '/img/shop/tango.png',
-    location: 'This great item will give you energy, look for it on the snack shelf',
-  },
-]);
+const coinStore = useCoinStore();
 
 const swiperRef = ref(null);
 const purchasedItems = ref([]);
 
+const successSound = new Audio('/audio/coins.wav');
+const errorSound = new Audio('/audio/wrong.mp3');
+
+const { showAlert, alertMessage, triggerAlert } = useAlert();
+
+const allItemsPurchased = computed(() => {
+  return itemsForShop.length > 0 && purchasedItems.value.length === itemsForShop.length;
+});
+
+const checkAllPurchased = () => {
+  const allPurchased = itemsForShop.length === purchasedItems.value.length;
+  if (allPurchased) {
+    triggerAlert(
+      'You have purchased all the necessary clues about the location of the items. Get them and follow the rest of the clues'
+    );
+  }
+};
+
 const buyItem = (id) => {
-  if (!purchasedItems.value.includes(id)) {
+  const item = itemsForShop.find((i) => i.id === id);
+  if (!item) return;
+
+  if (purchasedItems.value.includes(id)) {
+    errorSound.play();
+    return;
+  }
+
+  if (coinStore.spendCoins(item.price)) {
     purchasedItems.value.push(id);
     localStorage.setItem('purchasedItems', JSON.stringify(purchasedItems.value));
+    successSound.play();
+    checkAllPurchased();
+  } else {
+    errorSound.play();
   }
 };
 
 const isPurchased = (id) => purchasedItems.value.includes(id);
 
+if (allItemsPurchased.value) {
+  triggerAlert(
+    'You have purchased all the necessary clues about the location of the items. Get them and follow the rest of the clues'
+  );
+} else {
+  triggerAlert('Buy all the clues. They will lead you to the items — and to the main prize');
+}
+
+// -------- Lifecycle Hooks --------
 onMounted(() => {
   const saved = localStorage.getItem('purchasedItems');
   if (saved) {
@@ -79,7 +102,7 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
+<style>
 .shop {
   background-image: url('/img/secret-shop.png');
   background-size: cover;
@@ -99,12 +122,6 @@ onMounted(() => {
 .swiper-slide-active {
   transform: scale(1);
   transition: transform 0.3s ease;
-}
-
-.swiper-button-next svg,
-.swiper-button-prev svg {
-  stroke-width: 1px;
-  stroke: azure;
 }
 
 .shop-item {

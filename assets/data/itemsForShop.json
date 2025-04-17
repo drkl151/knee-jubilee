@@ -1,0 +1,23 @@
+[
+  {
+    "id": "healing_salve",
+    "description": "Healing Salve",
+    "price": 10,
+    "image": "/img/shop/flasc.png",
+    "location": "This elixir will give you strength and wisdom. look for it on the snack shelf"
+  },
+  {
+    "id": "iron_branch",
+    "description": "Iron Branch",
+    "price": 5,
+    "image": "/img/shop/iron_branch.png",
+    "location": "This branch will give you additional resources for searching. Take it from the room with the vacuum cleaner"
+  },
+  {
+    "id": "tango",
+    "description": "Tango",
+    "price": 10,
+    "image": "/img/shop/tango.png",
+    "location": "This great item will give you energy. You will find it in the microwave."
+  }
+]

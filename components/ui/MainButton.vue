@@ -14,7 +14,7 @@ import { computed, defineProps, defineEmits } from 'vue';
 const props = defineProps({
   buttonText: {
     type: String,
-    required: true,
+    default: '',
   },
   font: {
     type: Number,

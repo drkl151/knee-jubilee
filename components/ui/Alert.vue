@@ -14,7 +14,7 @@ defineProps({
 <style scoped>
 .msg {
   position: absolute;
-  z-index: 8888;
+  z-index: 9999;
   top: 5%;
   left: 50%;
   transform: translate(-50%, 0%);

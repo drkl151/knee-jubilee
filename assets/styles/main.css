@@ -60,6 +60,7 @@ video {
   --main-white: #f0e4e4;
   --cherry: #a02c2c;
   --cherry-dark: #a02c2c;
+  --swiper-navigation-color: var(--cherry);
 }
 
 /* topic style */

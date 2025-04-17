@@ -7,8 +7,7 @@
       :video-src="videoSrc"
       :loop="isIdle"
       :show-skip="showSkip"
-      :muted="!videoStarted"
-      :can-play="!isGameAlreadyPlayed"
+      :can-play="!gameCompleted"
       @started="onVideoStarted"
       @ended="onVideoEnded"
       @skip="nextVideo"
@@ -62,23 +61,23 @@ const videos = {
 const posterSrc = '/games/riddle/wk_start.png';
 
 // -------- Reactive state --------
-const coinsEarned = ref(0);
 const videoSrc = ref(videos.start);
-const videoStarted = ref(false);
 const showSkip = ref(false);
 const showInput = ref(false);
 const showCoinsModal = ref(false);
 const userAnswer = ref('');
 const isCorrect = ref(false);
+const coinsEarned = ref(0);
 const coinStore = useCoinStore();
 
 // -------- Computed --------
 const isIdle = computed(() => videoSrc.value === videos.idle);
 const isAnswerDisabled = computed(() => videoSrc.value === videos.wrong);
-const isGameAlreadyPlayed = computed(() => localStorage.getItem('wk_riddle_completed') === 'true');
+const gameCompleted = computed(() => localStorage.getItem('wk_riddle_completed') === 'true');
 
+// -------- Lifecycle Hooks --------
 onMounted(() => {
-  if (isGameAlreadyPlayed.value) {
+  if (gameCompleted.value) {
     showCoinsModal.value = true;
     triggerAlert('You have already completed this riddle');
   } else {
@@ -89,7 +88,6 @@ onMounted(() => {
 // -------- Video event handlers --------
 function onVideoStarted() {
   hideAlert();
-  videoStarted.value = true;
   showSkip.value = true;
 }
 
@@ -114,7 +112,7 @@ function onVideoEnded() {
     localStorage.setItem('wk_riddle_completed', 'true');
     showCoinsModal.value = true;
     coinsEarned.value = 10;
-    coinStore.addCoins(10);
+    coinStore.addCoins(coinsEarned.value);
   }
 }
 

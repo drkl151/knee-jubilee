@@ -7,6 +7,7 @@
       :video-src="videoSrc"
       :loop="isIdle"
       :show-skip="showSkip"
+      :can-play="!gameCompleted"
       @started="onVideoStarted"
       @ended="onVideoEnd"
       @skip="nextVideo"
@@ -52,27 +53,38 @@
         />
       </div>
     </div>
+
+    <CoinsModal
+      title="You passed the memory game"
+      :visible="showCoinsModal"
+      :coins="coinsEarned"
+      :on-clicked="returnToMap"
+    />
   </div>
 </template>
 
 <script setup>
+// -------- Imports --------
 import { ref, reactive, onMounted, computed, watch } from 'vue';
 import VideoPlayer from '@/components/VideoPlayer.vue';
+import CoinsModal from '@/components/CoinsModal.vue';
+
 import Alert from '@/components/ui/Alert.vue';
 import MainButton from '@/components/ui/MainButton.vue';
 
 // -------- State Management --------
 const showCardsBlock = ref(false);
-const showAlert = ref(false);
-const alertMessage = ref('');
+const timer = ref(null);
 const timeLeft = ref(20);
 const flips = ref(0);
 const matchedPairs = ref(0);
 const isPlaying = ref(false);
 const disableDeck = ref(false);
-const videoStarted = ref(false);
 const cardOne = ref(null);
 const cardTwo = ref(null);
+const coinsEarned = ref(0);
+const coinStore = useCoinStore();
+const showCoinsModal = ref(false);
 
 const cardImages = ['1.webp', '2.webp', '3.webp', '4.webp', '5.webp', '6.webp'];
 const shuffledCards = reactive([]);
@@ -85,31 +97,19 @@ const showSkip = ref(false);
 const videos = {
   start: '/games/memory/video/wr_start.mp4',
   idle: '/games/memory/video/wr_idle.mp4',
+  lose: '/games/memory/video/wr_lose.mp4',
+  win: '/games/memory/video/wr_win.mp4',
 };
 
+// -------- Computed --------
 const isIdle = computed(() => videoSrc.value === videos.idle);
+const gameCompleted = computed(() => localStorage.getItem('wr_memory_completed') === 'true');
 
-const onVideoStarted = () => {
-  showAlert.value = false;
-  showSkip.value = true;
-  videoStarted.value = true;
-};
+// -------- Router & alert composable --------
+const { returnToMap } = useGlobalUtils();
+const { showAlert, alertMessage, triggerAlert, hideAlert } = useAlert();
 
-const nextVideo = () => {
-  if (videoSrc.value === videos.start) {
-    videoSrc.value = videos.idle;
-    showCardsBlock.value = true;
-    showSkip.value = false;
-    showAlert.value = true;
-    alertMessage.value = 'Find matching pairs from memories in 20 seconds!';
-  }
-};
-
-const onVideoEnd = () => {
-  nextVideo();
-};
-
-// -------- Game Logic --------
+// -------- Memory Game Logic --------
 const createShuffledCards = () => {
   const cards = [...cardImages, ...cardImages];
   cards.sort(() => Math.random() - 0.5);
@@ -121,6 +121,7 @@ const createShuffledCards = () => {
 };
 
 const shuffleCards = () => {
+  clearInterval(timer.value);
   timeLeft.value = 20;
   flips.value = 0;
   matchedPairs.value = 0;
@@ -132,9 +133,9 @@ const shuffleCards = () => {
 };
 
 const startTimer = () => {
-  const timer = setInterval(() => {
+  timer.value = setInterval(() => {
     if (timeLeft.value <= 0) {
-      clearInterval(timer);
+      clearInterval(timer.value);
     } else {
       timeLeft.value -= 1;
     }
@@ -154,7 +155,8 @@ const checkMatch = () => {
   if (first.image === second.image) {
     matchedPairs.value += 1;
     if (matchedPairs.value === cardImages.length) {
-      clearInterval(timer);
+      clearInterval(timer.value);
+      videoSrc.value = videos.win;
     }
     resetCards();
   } else {
@@ -191,17 +193,51 @@ const flipCard = (card, index) => {
   }
 };
 
+// -------- Video event handlers --------
+const onVideoStarted = () => {
+  hideAlert();
+  showSkip.value = true;
+};
+
+const nextVideo = () => {
+  if (videoSrc.value === videos.start) {
+    videoSrc.value = videos.idle;
+    showCardsBlock.value = true;
+    showSkip.value = false;
+    triggerAlert('Find matching pairs from memories in 20 seconds!');
+  } else if (videoSrc.value === videos.lose) {
+    shuffleCards();
+    videoSrc.value = videos.idle;
+  }
+};
+
+const onVideoEnd = () => {
+  nextVideo();
+
+  if (videoSrc.value === videos.win) {
+    localStorage.setItem('wr_memory_completed', 'true');
+    showCoinsModal.value = true;
+    coinsEarned.value = 10;
+    coinStore.addCoins(coinsEarned.value);
+  }
+};
+
 // -------- Lifecycle Hooks --------
 onMounted(() => {
+  if (gameCompleted.value) {
+    showCoinsModal.value = true;
+    triggerAlert('You have already completed this memory game');
+  } else {
+    triggerAlert('Press anywhere to continue');
+  }
+
   shuffleCards();
-  showAlert.value = true;
-  alertMessage.value = 'Press anywhere to continue';
 });
 
 // -------- Watchers --------
 watch(timeLeft, (newTime) => {
   if (newTime <= 0 && isPlaying.value) {
-    console.log('time is over');
+    videoSrc.value = videos.lose;
   }
 });
 </script>

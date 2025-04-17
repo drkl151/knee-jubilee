@@ -7,8 +7,7 @@
       :video-src="videoSrc"
       :loop="isIdle"
       :show-skip="showSkip"
-      :muted="!videoStarted"
-      :can-play="!isGameAlreadyPlayed"
+      :can-play="!gameCompleted"
       @started="onVideoStarted"
       @ended="onVideoEnd"
       @skip="nextVideo"
@@ -80,7 +79,6 @@ const { returnToMap } = useGlobalUtils();
 const videoSrc = ref('/games/quiz/video/ww_start.mp4');
 const posterSrc = '/games/quiz/ww_start.png';
 const showQuiz = ref(false);
-const videoStarted = ref(false);
 const showSkip = ref(false);
 
 // -------- Video sources --------
@@ -94,12 +92,12 @@ const videos = {
 
 // -------- Reactive state --------
 const currentIndex = ref(0);
-const coinsEarned = ref(0);
 const selectedAnswer = ref(null);
 const buttonsDisabled = ref(false);
 const feedbackMessage = ref('');
 const feedbackVisible = ref(false);
 const score = ref(0);
+const coinsEarned = ref(0);
 const coinStore = useCoinStore();
 const showCoinsModal = ref(false);
 
@@ -108,13 +106,14 @@ const isIdle = computed(() => videoSrc.value === videos.idle);
 const currentQuestion = computed(() => questionsFromQuiz[currentIndex.value]);
 const correctIndex = computed(() => currentQuestion.value.correct);
 const isLastQuestion = computed(() => currentIndex.value === questionsFromQuiz.length - 1);
-const isGameAlreadyPlayed = computed(() => localStorage.getItem('ww_quiz_completed') === 'true');
+const gameCompleted = computed(() => localStorage.getItem('ww_quiz_completed') === 'true');
 
 const correctSound = new Audio('/audio/clarity_right.mp3');
 const wrongSound = new Audio('/audio/wrong.mp3');
 
+// -------- Lifecycle Hooks --------
 onMounted(() => {
-  if (isGameAlreadyPlayed.value) {
+  if (gameCompleted.value) {
     showCoinsModal.value = true;
     triggerAlert('You have already completed this quiz');
   } else {
@@ -130,7 +129,6 @@ onMounted(() => {
 const onVideoStarted = () => {
   hideAlert();
   showSkip.value = true;
-  videoStarted.value = true;
 };
 
 const nextVideo = () => {
@@ -234,7 +232,7 @@ const getAnswerClass = (index) => {
   z-index: 7777;
   right: 15%;
   top: 20%;
-  padding: 20px 40px;
+  padding: 20px 40px 35px;
   display: flex;
   flex-direction: column;
   align-items: center;
